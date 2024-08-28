@@ -1,14 +1,15 @@
 import React from 'react';
 import {Button, Card, CardBody, CardFooter, Heading, Image, Stack, Text} from "@chakra-ui/react";
+import {useNavigate} from "react-router-dom";
 
 const BookCard = (props) => {
+    const router = useNavigate()
     return (
         <Card
             direction={{ base: 'column', sm: 'row' }}
             overflow='hidden'
             variant='outline'
-            width={{ base: '100%', sm: '750px' }}  // Установите фиксированную ширину
-            height="300px"  // Установите фиксированную высоту
+            width={{ base: '100%', sm: '750px' }}
         >
             <Image
                 objectFit='cover'
@@ -28,7 +29,7 @@ const BookCard = (props) => {
                 </CardBody>
 
                 <CardFooter>
-                    <Button variant='solid' colorScheme='teal'>
+                    <Button onClick={()=> router(`/books/${props.id}`)} variant='solid' colorScheme='teal'>
                         Подробнее
                     </Button>
                 </CardFooter>

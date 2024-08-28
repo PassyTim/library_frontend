@@ -9,4 +9,12 @@ export default class BookService {
             }
         })
     }
+
+    static async getById(id) {
+        return await axios.get('https://localhost:7212/api/book/' + id)
+    }
+
+    static async delete(id) {
+        return await axios.delete('https://localhost:7212/api/book/' + id)
+    }
 }
