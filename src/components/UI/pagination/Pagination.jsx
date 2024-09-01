@@ -6,7 +6,7 @@ const Pagination = ({totalPages, currentPage, changePage}) => {
     let pagesArray = getPagesArray(totalPages);
 
     return (
-        <div style={{display: "flex", justifyContent: "space-around"}}>
+        <div style={{display: "flex", justifyContent: "center" }}>
             {pagesArray.map(p =>
                 <Button
                     onClick={() => changePage(p)}
