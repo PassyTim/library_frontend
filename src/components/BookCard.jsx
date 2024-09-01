@@ -1,5 +1,5 @@
 import React from 'react';
-import {Button, Card, CardBody, CardFooter, Heading, Image, Stack, Text} from "@chakra-ui/react";
+import {Badge, Button, Card, CardBody, CardFooter, Heading, Image, Stack, Text} from "@chakra-ui/react";
 import {useNavigate} from "react-router-dom";
 
 const BookCard = (props) => {
@@ -32,6 +32,10 @@ const BookCard = (props) => {
                     <Button onClick={()=> router(`/books/${props.id}`)} variant='solid' colorScheme='teal'>
                         Подробнее
                     </Button>
+                    {props.availableCount === 0
+                        ? <Badge  ml={3} p={2} size='ml' variant='outline' colorScheme='gray' fontSize='0.8em' >Нет в наличии</Badge>
+                        : <></>
+                    }
                 </CardFooter>
             </Stack>
         </Card>

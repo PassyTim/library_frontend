@@ -5,13 +5,17 @@ import Loader from "../../components/UI/loader/Loader";
 import AuthorsList from "../../components/AuthorsList";
 import {Button, Divider} from "@chakra-ui/react";
 import {useNavigate} from "react-router-dom";
+import useAuth from "../../hooks/useAuth";
 
 const Authors = () => {
     const navigate = useNavigate();
     const [authors, setAuthors] = useState([]);
+    const {auth} = useAuth();
+
+    const {getAllAuthors} = AuthorService();
 
     const [fetchAuthors,isAuthorsLoading, authorError] = useFetching(async () => {
-        const response = await AuthorService.getAll();
+        const response = await getAllAuthors();
         setAuthors(response.data.data);
     })
 
@@ -26,14 +30,17 @@ const Authors = () => {
 
     return (
         <div>
-            <Button
-                onClick={()=> navigate(`/authors/add`)}
-                colorScheme='green'
-                variant='outline'
-                mt='4px'
-            >
-                Добавить
-            </Button>
+            {auth.role === "Admin"
+                ? <Button
+                    onClick={()=> navigate(`/authors/add`)}
+                    colorScheme='green'
+                    variant='outline'
+                    mt='4px'
+                >
+                    Добавить
+                </Button>
+                : <></>
+            }
             <Divider my={5}/>
             <AuthorsList authors={authors}/>
         </div>

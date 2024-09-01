@@ -8,6 +8,7 @@ import {useFetching} from "../../useFetching";
 import {getPagesCount} from "../../utils/pages";
 import BookService from "../../API/BookService";
 import {useNavigate} from "react-router-dom";
+import useAuth from "../../hooks/useAuth";
 
 
 function Books() {
@@ -21,8 +22,13 @@ function Books() {
     const [filter, setFilter] = useState({ author: '', genre: '' });
     const [authors, setAuthors] = useState([]);
 
-    const [fetchCards,isCardsLoading, cardError] = useFetching(async (limit, currentPage) => {
-        const response = await BookService.getAll(limit, currentPage);
+    const {auth} = useAuth();
+
+    const {getAllAuthors} = AuthorService();
+    const {getAllBooks} = BookService();
+
+    const [fetchCards, isCardsLoading, cardError] = useFetching(async (limit, currentPage) => {
+        const response = await getAllBooks(limit, currentPage);
         setCards(response.data.data);
         setFilteredCards(response.data.data);
         const totalCardsCount = response.headers['x-count']
@@ -30,7 +36,7 @@ function Books() {
     })
 
     const [fetchAuthors,isAuthorsLoading, authorError] = useFetching(async () => {
-        const response = await AuthorService.getAll();
+        const response = await getAllAuthors();
         setAuthors(response.data.data);
     })
 
@@ -41,8 +47,13 @@ function Books() {
 
     useEffect(() => {
         fetchCards(limit, currentPage);
-        fetchAuthors();
     }, []);
+
+    useEffect(()=> {
+        if (!isCardsLoading && !cardError && cards.length > 0) {
+            fetchAuthors();
+        }
+    }, [isCardsLoading, cardError, cards ])
 
     const filterCards = () => {
         let filtered = cards;
@@ -88,14 +99,18 @@ function Books() {
                     placeholder='Поиск по жанру..'
                 />
             </div>
-            <Button
-                onClick={()=> navigate(`/books/add`)}
-                colorScheme='green'
-                variant='outline'
-                mt='4px'
-            >
-                Добавить
-            </Button>
+            {auth.role === "Admin"
+                ? <Button
+                    onClick={()=> navigate(`/books/add`)}
+                    colorScheme='green'
+                    variant='outline'
+                    mt='4px'
+                >
+                    Добавить
+                </Button>
+                : <></>
+            }
+
 
             {cardError &&
                 <h1>Произошла ошибка: {cardError}</h1>

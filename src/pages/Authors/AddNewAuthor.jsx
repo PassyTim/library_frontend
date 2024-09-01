@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import {Box, Button, FormControl, FormLabel, Heading, Input, Text, VStack} from "@chakra-ui/react";
-import AuthorService from "../../API/AuthorService";
 import {useNavigate} from "react-router-dom";
+import AuthorService from "../../API/AuthorService";
 
 const AddNewAuthor = () => {
     const navigate = useNavigate();
@@ -12,6 +12,7 @@ const AddNewAuthor = () => {
         country: '',
         birthDate: ''
     })
+    const {createAuthor} = AuthorService();
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -24,7 +25,7 @@ const AddNewAuthor = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await AuthorService.create(author);
+            await createAuthor(author);
             navigate(`/authors`);
         } catch (error) {
             if(error.response && error.response.data) {

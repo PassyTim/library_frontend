@@ -3,8 +3,9 @@ import {Box, Button, FormControl, FormLabel, Heading, Input, Select, Text, Texta
 import axios from "axios";
 import {useNavigate} from "react-router-dom";
 import {useFetching} from "../../useFetching";
-import AuthorService from "../../API/AuthorService";
 import Loader from "../../components/UI/loader/Loader";
+import AuthorService from "../../API/AuthorService";
+import BookService from "../../API/BookService";
 
 const AddNewBook = () => {
     const navigate = useNavigate();
@@ -16,6 +17,9 @@ const AddNewBook = () => {
     const [image, setImage] = useState(null);
     const [authors, setAuthors] = useState([]);
     const [errors, setErrors] = useState([]);
+
+    const {getAllAuthors} = AuthorService();
+    const {createBook} = BookService();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -32,11 +36,7 @@ const AddNewBook = () => {
         }
 
         try {
-            await axios.post(`https://localhost:7212/api/book`, formData, {
-                headers: {
-                    'content-Type': 'multipart/form-data'
-                }
-            });
+            createBook(formData);
             navigate(`/books`);
         } catch (error) {
             if(error.response && error.response.data) {
@@ -49,7 +49,7 @@ const AddNewBook = () => {
     };
 
     const [fetchAuthors,isAuthorsLoading, authorsError] = useFetching(async () => {
-        const response = await AuthorService.getAll();
+        const response = await getAllAuthors();
         setAuthors(response.data.data);
     })
 

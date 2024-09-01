@@ -23,6 +23,7 @@ const AuthorsList = ({authors}) => {
                         height='50px'
                         justifyContent='center'
                         onClick={()=> navigate(`/authors/${author.id}`)}
+                        key={author.id}
                     >
                         {author.firstName} {author.lastName}
                     </Box>

@@ -2,8 +2,8 @@ import React, {useEffect, useState} from 'react';
 import {Box, Button, FormControl, FormLabel, Heading, Input, Text, VStack} from "@chakra-ui/react";
 import {useNavigate, useParams} from "react-router-dom";
 import {useFetching} from "../../useFetching";
-import AuthorService from "../../API/AuthorService";
 import Loader from "../../components/UI/loader/Loader";
+import AuthorService from "../../API/AuthorService";
 
 const AuthorRedact = () => {
     const navigate = useNavigate();
@@ -17,12 +17,14 @@ const AuthorRedact = () => {
     });
     const [errors, setErrors] = useState([]);
 
+    const {getByIdWithoutBooks, updateAuthor} = AuthorService();
+
     useEffect(() => {
         fetchAuthor(params.id);
     }, [params.id]);
 
     const [fetchAuthor, isAuthorLoading, authorError] = useFetching(async (id) => {
-        const response = await AuthorService.getByIdWithoutBooks(id);
+        const response = await getByIdWithoutBooks(id);
         setAuthor(response.data.data);
     })
 
@@ -38,7 +40,7 @@ const AuthorRedact = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await AuthorService.update(params.id, author);
+            await updateAuthor(params.id, author);
             navigate(`/authors`);
         } catch (error) {
             if(error.response && error.response.data) {

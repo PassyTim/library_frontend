@@ -1,9 +1,8 @@
 import React, {useEffect, useState} from 'react';
-import axios from "axios";
 import {useFetching} from "../../useFetching";
-import BookService from "../../API/BookService";
 import {useNavigate, useParams} from "react-router-dom";
 import {Box, Button, FormControl, FormLabel, Heading, Input, Select, VStack, Text, Textarea} from "@chakra-ui/react";
+import BookService from "../../API/BookService";
 import AuthorService from "../../API/AuthorService";
 
 const BookRedact = () => {
@@ -12,25 +11,34 @@ const BookRedact = () => {
     const [name, setName] = useState('');
     const [isbn, setIsbn] = useState('');
     const [genre, setGenre] = useState('');
+    const [availableCount, setAvailableCount] = useState('');
+    const [totalCount, setTotalCount] = useState('');
     const [description, setDescription] = useState('');
     const [authorId, setAuthorId] = useState('');
     const [image, setImage] = useState(null);
     const [book, setBook] = useState({});
     const [authors, setAuthors] = useState([]);
     const [errors, setErrors] = useState([]);
+    let oldTotalCount = 0;
+
+    const {getById, updateBook} = BookService();
+    const {getAllAuthors} = AuthorService();
 
     const [fetchBookById, isLoading, error] = useFetching(async (id) => {
-        const response = await BookService.getById(id);
+        const response = await getById(id);
         setBook(response.data.data);
         setName(response.data.data.name);
         setIsbn(response.data.data.isbn);
         setGenre(response.data.data.genre);
         setDescription(response.data.data.description);
         setAuthorId(response.data.data.authorId);
+        setAvailableCount(response.data.data.availableCount);
+        setTotalCount(response.data.data.totalCount);
+        oldTotalCount = response.data.data.totalCount
     });
 
     const [fetchAuthors,isAuthorsLoading, authorsError] = useFetching(async () => {
-        const response = await AuthorService.getAll();
+        const response = await getAllAuthors();
         setAuthors(response.data.data);
     })
 
@@ -41,6 +49,7 @@ const BookRedact = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        const newAvailableCount = availableCount + (totalCount - oldTotalCount);
 
         const formData = new FormData();
         formData.append('Id', params.id);
@@ -49,17 +58,15 @@ const BookRedact = () => {
         formData.append('Genre', genre);
         formData.append('Description', description);
         formData.append('AuthorId', authorId);
+        formData.append('AvailableCount', newAvailableCount);
+        formData.append('TotalCount', totalCount);
 
         if (image) {
             formData.append('Image', image);
         }
 
         try {
-            await axios.put(`https://localhost:7212/api/book/${book.id}`, formData, {
-                headers: {
-                    'content-Type': 'multipart/form-data'
-                }
-            });
+            await updateBook(book.id, formData);
             navigate(`/books`);
         } catch (error) {
             if(error.response && error.response.data) {
@@ -101,6 +108,14 @@ const BookRedact = () => {
                         type="text"
                         value={genre}
                         onChange={(e) => setGenre(e.target.value)}
+                    />
+                </FormControl>
+                <FormControl isRequired>
+                    <FormLabel>Общее количество</FormLabel>
+                    <Input
+                        type="text"
+                        value={totalCount}
+                        onChange={(e) => setTotalCount(e.target.value)}
                     />
                 </FormControl>
                 <FormControl>

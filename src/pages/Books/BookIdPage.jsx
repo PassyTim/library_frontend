@@ -1,7 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {useParams, Link, useNavigate} from "react-router-dom";
 import { useFetching } from "../../useFetching";
-import BookService from "../../API/BookService";
 import Loader from "../../components/UI/loader/Loader";
 import {
     Box,
@@ -14,10 +13,21 @@ import {
     Button,
     Breadcrumb,
     BreadcrumbItem,
-    BreadcrumbLink, useDisclosure
+    BreadcrumbLink,
+    useDisclosure,
+    ButtonGroup,
+    Modal,
+    ModalOverlay,
+    ModalContent,
+    ModalHeader,
+    ModalCloseButton,
+    ModalBody, FormControl, FormLabel, Input, ModalFooter
 } from "@chakra-ui/react";
-import AuthorService from "../../API/AuthorService";
 import DeleteAlert from "../../components/UI/deleteAlert/DeleteAlert";
+import BookService from "../../API/BookService";
+import AuthorService from "../../API/AuthorService";
+import useAuth from "../../hooks/useAuth";
+import BorrowBookService from "../../API/BorrowBookService";
 
 const BookIdPage = () => {
     const params = useParams();
@@ -25,30 +35,62 @@ const BookIdPage = () => {
     const [book, setBook] = useState({});
     const [author, setAuthor] = useState({});
     const { isOpen, onOpen, onClose } = useDisclosure();
+    const deleteDisclosure = useDisclosure();
+    const borrowDisclosure = useDisclosure();
+    const [returnDate, setReturnDate] = useState({});
+
+    const initialRef = React.useRef(null)
+    const finalRef = React.useRef(null)
+
+    const {auth} = useAuth();
+
+    const borrowBookHandle = async () => {
+        try{
+            const response = await borrowBook(auth.user.id, book.id, returnDate)
+        } catch (e) {
+            console.log(e);
+        }
+        borrowDisclosure.onClose()
+    }
+
+    const {borrowBook} = BorrowBookService();
+    const {getById, deleteBook} = BookService();
+    const {getByIdWithoutBooks} = AuthorService();
 
     const [fetchBookById, isLoading, error] = useFetching(async (id) => {
-        const response = await BookService.getById(id);
+        const response = await getById(id);
         setBook(response.data.data);
     });
 
     const [fetchAuthor, isAuthorLoading, authorError] = useFetching(async (id) => {
-        const response = await AuthorService.getByIdWithoutBooks(id);
+        const response = await getByIdWithoutBooks(id);
         setAuthor(response.data.data);
     })
 
     const handleDeleteBook = async () => {
-        await BookService.delete(book.id);
-        onClose();
+        await deleteBook(book.id);
+        deleteDisclosure.onClose();
         navigate('/books')
     };
 
     useEffect(() => {
         fetchBookById(params.id);
-    }, []);
+    }, [params.id]);
 
     useEffect(() => {
-        fetchAuthor(book.authorId);
-    }, [book]);
+        if (!isLoading && !error && book.authorId) {
+            fetchAuthor(book.authorId);
+        }
+    }, [book, isLoading, error]);
+
+    const handleReturnDateChange = (event) => {
+        setReturnDate(event.target.value);
+    };
+
+    const minDate = new Date();
+    minDate.setDate(minDate.getDate() + 1);
+    const maxDate = new Date();
+    maxDate.setMonth(maxDate.getMonth() + 1);
 
     if (isLoading || isAuthorLoading) {
         return <Loader />;
@@ -59,10 +101,11 @@ const BookIdPage = () => {
     }
 
     return (
-        <div style={{width:'80%'}}>
-            <Breadcrumb ml='12%' mt='5' spacing='8px'>
+        <div style={{ display: 'flex', justifyContent: 'center', width:'100%'}}>
+            <Box w='100%' maxW="1300px" mx="auto" mt="3" p="6" boxShadow="lg" borderRadius="md" >
+            <Breadcrumb ml='12%' my='3' spacing='8px'>
                 <BreadcrumbItem>
-                    <BreadcrumbLink as={Link} to='/Books/Books'>Books</BreadcrumbLink>
+                    <BreadcrumbLink as={Link} to='/Books'>Books</BreadcrumbLink>
                 </BreadcrumbItem>
 
                 <BreadcrumbItem isCurrentPage>
@@ -70,16 +113,17 @@ const BookIdPage = () => {
                 </BreadcrumbItem>
             </Breadcrumb>
 
+
             <DeleteAlert
-                isOpen={isOpen}
-                onOpen={onOpen}
-                onClose={onClose}
+                isOpen={deleteDisclosure.isOpen}
+                onOpen={deleteDisclosure.onOpen}
+                onClose={deleteDisclosure.onClose}
                 itemType='книгу'
                 itemName={book.name}
                 deleteFunc={handleDeleteBook}
             />
 
-            <Box w='80%' mx="auto" mt="3" p="6" boxShadow="lg" borderRadius="md" >
+
                 {book ? (
                     <HStack spacing="8" alignItems="start">
                         <Image
@@ -108,17 +152,59 @@ const BookIdPage = () => {
                                 ISBN: {book.isbn}
                             </Text>
                             <HStack>
-                                <Button colorScheme='teal' variant='ghost'><Link to='/Books/Books'>К книгам</Link></Button>
-                                <Button colorScheme='green'>Взять книгу</Button>
+                                <Button colorScheme='teal' variant='ghost'><Link to='/Books'>К книгам</Link></Button>
+                                {book.availableCount === 0
+                                    ? <Badge  ml={3} p={2} size='ml' variant='outline' colorScheme='gray' fontSize='0.8em' >Нет в наличии</Badge>
+                                    : <Button onClick={borrowDisclosure.onOpen} colorScheme='green'>Взять книгу</Button>
+                                }
                             </HStack>
-                                <Button colorScheme='red' onClick={onOpen}>Удалить книгу</Button>
-                                <Button onClick={()=> navigate(`/books/${book.id}/redact`)} colorScheme='blue'>Редактировать</Button>
+                            {auth.role === "Admin"
+                                ?
+                                <ButtonGroup p={2}>
+                                    <Button colorScheme='red' onClick={deleteDisclosure.onOpen}>Удалить книгу</Button>
+                                    <Button onClick={()=> navigate(`/books/${book.id}/redact`)} colorScheme='blue'>Редактировать</Button>
+                                </ButtonGroup>
+                                : <></>
+                            }
                         </VStack>
                     </HStack>
                 ) : (
                     <Text>No book data found.</Text>
                 )}
             </Box>
+
+            <Modal
+                initialFocusRef={initialRef}
+                finalFocusRef={finalRef}
+                isOpen={borrowDisclosure.isOpen}
+                onClose={borrowDisclosure.onClose}
+            >
+                <ModalOverlay />
+                <ModalContent>
+                    <ModalHeader>Выберите дату возврата книги</ModalHeader>
+                    <ModalCloseButton />
+                    <ModalBody pb={6}>
+                        <FormControl>
+                            <FormLabel>Дата возврата</FormLabel>
+                            <Input
+                                type="date"
+                                ref={initialRef}
+                                value={returnDate}
+                                onChange={handleReturnDateChange}
+                                min={minDate.toISOString().split('T')[0]} // Изменено
+                                max={maxDate.toISOString().split('T')[0]} // Изменено
+                            />
+                        </FormControl>
+                    </ModalBody>
+
+                    <ModalFooter>
+                        <Button colorScheme='blue' mr={3} onClick={borrowBookHandle}> {/* Изменено */}
+                            Подтвердить
+                        </Button>
+                        <Button onClick={borrowDisclosure.onClose}>Отмена</Button>
+                    </ModalFooter>
+                </ModalContent>
+            </Modal>
         </div>
     );
 };

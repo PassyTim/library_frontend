@@ -1,34 +1,38 @@
 import React, {useEffect, useState} from 'react';
 import {Link, useNavigate, useParams} from "react-router-dom";
 import {useFetching} from "../../useFetching";
-import AuthorService from "../../API/AuthorService";
 import Loader from "../../components/UI/loader/Loader";
 import {
     Badge,
     Box, Breadcrumb,
     BreadcrumbItem,
     BreadcrumbLink,
-    Button,
+    Button, ButtonGroup,
     Heading,
     List,
     ListItem,
     Text, useDisclosure
 } from "@chakra-ui/react";
 import DeleteAlert from "../../components/UI/deleteAlert/DeleteAlert";
+import AuthorService from "../../API/AuthorService";
+import useAuth from "../../hooks/useAuth";
 
 const AuthorIdPage = () => {
     const navigate = useNavigate();
     const params = useParams();
     const [author, setAuthor] = useState({});
     const { isOpen, onOpen, onClose } = useDisclosure();
+    const {auth} = useAuth();
+
+    const {getByIdWithBooks, deleteAuthor} = AuthorService();
 
     const [fetchAuthor, isAuthorLoading, authorError] = useFetching(async (id) => {
-        const response = await AuthorService.getByIdWithBooks(id);
+        const response = await getByIdWithBooks(id);
         setAuthor(response.data.data);
     })
 
     const handleDeleteAuthor = async () => {
-        await AuthorService.delete(author.id);
+        await deleteAuthor(author.id);
         onClose();
         navigate('/authors')
     };
@@ -74,10 +78,15 @@ const AuthorIdPage = () => {
                     Дата рождения: {author.birthDate ? new Date(author.birthDate).toLocaleDateString() : 'Неизвестно'}
                 </Text>
 
-                <Button mr={1} mb={2} colorScheme='teal' onClick={()=> navigate(`/authors`)}>К авторам</Button>
+                <Button mr={2} mb={1} colorScheme='teal' onClick={()=> navigate(`/authors`)}>К авторам</Button>
 
-                <Button mr={1} mb={2} colorScheme='red' onClick={onOpen} >Удалить</Button>
-                <Button mb={2} onClick={()=> navigate(`/authors/${author.id}/redact`)} colorScheme='blue'>Редактировать</Button>
+                {auth.role === "Admin"
+                    ? <ButtonGroup mr={2} mb={4}>
+                        <Button colorScheme='red' onClick={onOpen} >Удалить</Button>
+                        <Button  onClick={()=> navigate(`/authors/${author.id}/redact`)} colorScheme='blue'>Редактировать</Button>
+                    </ButtonGroup>
+                    : <></>
+                }
 
                 <Heading as="h2" size="md" mb={4}>
                     Книги:
