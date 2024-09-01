@@ -17,6 +17,7 @@ const AddNewBook = () => {
     const [image, setImage] = useState(null);
     const [authors, setAuthors] = useState([]);
     const [errors, setErrors] = useState([]);
+    const [totalCount, setTotalCount] = useState('');
 
     const {getAllAuthors} = AuthorService();
     const {createBook} = BookService();
@@ -30,6 +31,8 @@ const AddNewBook = () => {
         formData.append('Genre', genre);
         formData.append('Description', description);
         formData.append('AuthorId', authorId);
+        formData.append('AvailableCount', totalCount);
+        formData.append('TotalCount', totalCount);
 
         if (image) {
             formData.append('Image', image);
@@ -90,6 +93,14 @@ const AddNewBook = () => {
                         <Input
                             type="text"
                             onChange={(e) => setGenre(e.target.value)}
+                        />
+                    </FormControl>
+                    <FormControl isRequired>
+                        <FormLabel>Общее количество</FormLabel>
+                        <Input
+                            type="text"
+                            value={totalCount}
+                            onChange={(e) => setTotalCount(e.target.value)}
                         />
                     </FormControl>
                     <FormControl>

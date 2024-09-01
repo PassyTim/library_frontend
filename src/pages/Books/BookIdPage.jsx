@@ -34,7 +34,6 @@ const BookIdPage = () => {
     const navigate = useNavigate();
     const [book, setBook] = useState({});
     const [author, setAuthor] = useState({});
-    const { isOpen, onOpen, onClose } = useDisclosure();
     const deleteDisclosure = useDisclosure();
     const borrowDisclosure = useDisclosure();
     const [returnDate, setReturnDate] = useState({});
@@ -75,7 +74,7 @@ const BookIdPage = () => {
 
     useEffect(() => {
         fetchBookById(params.id);
-    }, [params.id]);
+    }, [params.id, borrowDisclosure.onClose]);
 
     useEffect(() => {
         if (!isLoading && !error && book.authorId) {
