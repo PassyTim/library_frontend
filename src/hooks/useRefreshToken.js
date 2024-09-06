@@ -2,7 +2,7 @@ import useAuth from "./useAuth";
 import axios from "axios";
 
 const useRefreshToken = () => {
-    const { setAuth} = useAuth();
+    const {setAuth} = useAuth();
 
     const refresh = async () => {
 
@@ -10,13 +10,19 @@ const useRefreshToken = () => {
                 withCredentials: true
             });
 
-        setAuth(prev => {
-            return {...prev,
-                accessToken: response.data.accessToken
-            }
-        });
-        console.log('get while refreshing ' + response.data);
-        return response.data.accessToken;
+        const newAccessToken = response.data;
+        console.log('Get while refreshing: ' + newAccessToken);
+
+        if (newAccessToken) {
+            setAuth(prev =>
+                ({...prev,
+                    accessToken: newAccessToken,
+                    user: prev.user,
+                    role: prev.role
+                }));
+        }
+
+        return newAccessToken;
     }
 
     return refresh;

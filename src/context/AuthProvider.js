@@ -13,14 +13,18 @@ export const AuthProvider = ({ children }) => {
     });
 
     useEffect(() => {
-        if (auth?.accessToken) {
+        if (auth && auth.accessToken && auth.user && auth.role) {
+            console.log(`setting local storage data`)
             localStorage.setItem('accessToken', auth.accessToken);
             localStorage.setItem('user', JSON.stringify(auth.user));
             localStorage.setItem('role', auth.role);
         } else {
-            localStorage.removeItem('accessToken');
-            localStorage.removeItem('user');
-            localStorage.removeItem('role');
+            if (auth && Object.keys(auth).length === 0){
+                console.log(`removing local storage data`)
+                localStorage.removeItem('accessToken');
+                localStorage.removeItem('user');
+                localStorage.removeItem('role');
+            }
         }
     }, [auth]);
 
