@@ -31,8 +31,8 @@ const Login= () => {
             console.log(response);
 
             const accessToken = response?.headers['authorization'];
-            console.log(response.data.data);
-            const user = response?.data?.data;
+            console.log(response.data);
+            const user = response?.data;
             const role = getRole(accessToken);
 
             setAuth({user, role, accessToken})
@@ -41,8 +41,8 @@ const Login= () => {
 
             console.log('Пользователь успешно вошел в систему:', response.data);
         } catch (error) {
-            if(error?.response && error?.response.data) {
-                setResponseErrors(error.response.data.errors)};
+            if(error?.response) {
+                setResponseErrors(error.response)};
             console.error('Ошибка:', error);
         }
     };

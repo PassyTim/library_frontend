@@ -28,8 +28,8 @@ const AddNewAuthor = () => {
             await createAuthor(author);
             navigate(`/authors`);
         } catch (error) {
-            if(error.response && error.response.data) {
-                setErrors(error.response.data.errors);
+            if(error.response) {
+                setErrors(error.response);
             } else {
                 console.error('There was an error updating the author!', error);
             }

@@ -17,15 +17,15 @@ const AuthorRedact = () => {
     });
     const [errors, setErrors] = useState([]);
 
-    const {getByIdWithoutBooks, updateAuthor} = AuthorService();
+    const {getByIdWithBooks, updateAuthor} = AuthorService();
 
     useEffect(() => {
         fetchAuthor(params.id);
     }, [params.id]);
 
     const [fetchAuthor, isAuthorLoading, authorError] = useFetching(async (id) => {
-        const response = await getByIdWithoutBooks(id);
-        setAuthor(response.data.data);
+        const response = await getByIdWithBooks(id);
+        setAuthor(response.data);
     })
 
     const handleChange = (e) => {
@@ -43,8 +43,8 @@ const AuthorRedact = () => {
             await updateAuthor(params.id, author);
             navigate(`/authors`);
         } catch (error) {
-            if(error.response && error.response.data) {
-                setErrors(error.response.data.errors);
+            if(error.response) {
+                setErrors(error.response);
             } else {
                 console.error('There was an error updating the author!', error);
             }

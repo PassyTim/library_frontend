@@ -17,7 +17,6 @@ const AddNewBook = () => {
     const [image, setImage] = useState(null);
     const [authors, setAuthors] = useState([]);
     const [errors, setErrors] = useState([]);
-    const [totalCount, setTotalCount] = useState('');
 
     const {getAllAuthors} = AuthorService();
     const {createBook} = BookService();
@@ -31,8 +30,6 @@ const AddNewBook = () => {
         formData.append('Genre', genre);
         formData.append('Description', description);
         formData.append('AuthorId', authorId);
-        formData.append('AvailableCount', totalCount);
-        formData.append('TotalCount', totalCount);
 
         if (image) {
             formData.append('Image', image);
@@ -42,8 +39,8 @@ const AddNewBook = () => {
             createBook(formData);
             navigate(`/books`);
         } catch (error) {
-            if(error.response && error.response.data) {
-                setErrors(error.response.data.errors);
+            if(error.response) {
+                setErrors(error.response);
                 console.error('There was an error creating the book!', error);
             } else {
                 console.error('There was an error creating the book!', error);
@@ -53,7 +50,7 @@ const AddNewBook = () => {
 
     const [fetchAuthors,isAuthorsLoading, authorsError] = useFetching(async () => {
         const response = await getAllAuthors();
-        setAuthors(response.data.data);
+        setAuthors(response.data);
     })
 
     useEffect(() => {
@@ -95,14 +92,6 @@ const AddNewBook = () => {
                             onChange={(e) => setGenre(e.target.value)}
                         />
                     </FormControl>
-                    <FormControl isRequired>
-                        <FormLabel>Общее количество</FormLabel>
-                        <Input
-                            type="text"
-                            value={totalCount}
-                            onChange={(e) => setTotalCount(e.target.value)}
-                        />
-                    </FormControl>
                     <FormControl>
                         <FormLabel>Описание</FormLabel>
                         <Textarea
@@ -112,6 +101,7 @@ const AddNewBook = () => {
                     <FormControl isRequired>
                         <FormLabel>Автор</FormLabel>
                         <Select
+                            placeholder='Выберите автора...'
                             value={authorId}
                             onChange={(e) => setAuthorId(e.target.value)}>
                             {authors.map(author => (

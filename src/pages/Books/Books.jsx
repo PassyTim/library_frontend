@@ -29,15 +29,15 @@ function Books() {
 
     const [fetchCards, isCardsLoading, cardError] = useFetching(async (limit, currentPage) => {
         const response = await getAllBooks(limit, currentPage);
-        setCards(response.data.data);
-        setFilteredCards(response.data.data);
+        setCards(response.data);
+        setFilteredCards(response.data);
         const totalCardsCount = response.headers['x-count']
         setTotalPages(getPagesCount(totalCardsCount, limit))
     })
 
     const [fetchAuthors,isAuthorsLoading, authorError] = useFetching(async () => {
         const response = await getAllAuthors();
-        setAuthors(response.data.data);
+        setAuthors(response.data);
     })
 
     const changePage = (pageNumber) => {

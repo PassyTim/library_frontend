@@ -11,35 +11,36 @@ const BookRedact = () => {
     const [name, setName] = useState('');
     const [isbn, setIsbn] = useState('');
     const [genre, setGenre] = useState('');
-    const [availableCount, setAvailableCount] = useState('');
-    const [totalCount, setTotalCount] = useState('');
     const [description, setDescription] = useState('');
     const [authorId, setAuthorId] = useState('');
     const [image, setImage] = useState(null);
     const [book, setBook] = useState({});
     const [authors, setAuthors] = useState([]);
+    const [userId, setUserId] = useState([]);
+    const [returnDate, setReturnDate] = useState([]);
+    const [takeDate, setTakeDate] = useState([]);
     const [errors, setErrors] = useState([]);
-    let oldTotalCount = 0;
+
 
     const {getById, updateBook} = BookService();
     const {getAllAuthors} = AuthorService();
 
     const [fetchBookById, isLoading, error] = useFetching(async (id) => {
         const response = await getById(id);
-        setBook(response.data.data);
-        setName(response.data.data.name);
-        setIsbn(response.data.data.isbn);
-        setGenre(response.data.data.genre);
-        setDescription(response.data.data.description);
-        setAuthorId(response.data.data.authorId);
-        setAvailableCount(response.data.data.availableCount);
-        setTotalCount(response.data.data.totalCount);
-        oldTotalCount = response.data.data.totalCount
+        setBook(response.data);
+        setName(response.data.name);
+        setIsbn(response.data.isbn);
+        setGenre(response.data.genre);
+        setDescription(response.data.description);
+        setAuthorId(response.data.authorId);
+        setUserId(response.data.userId);
+        setReturnDate(response.data.returnDate);
+        setTakeDate(response.data.takeDate);
     });
 
     const [fetchAuthors,isAuthorsLoading, authorsError] = useFetching(async () => {
         const response = await getAllAuthors();
-        setAuthors(response.data.data);
+        setAuthors(response.data);
     })
 
     useEffect(() => {
@@ -49,8 +50,7 @@ const BookRedact = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const newAvailableCount = availableCount + (totalCount - oldTotalCount);
-
+        
         const formData = new FormData();
         formData.append('Id', params.id);
         formData.append('Name', name);
@@ -58,8 +58,9 @@ const BookRedact = () => {
         formData.append('Genre', genre);
         formData.append('Description', description);
         formData.append('AuthorId', authorId);
-        formData.append('AvailableCount', newAvailableCount);
-        formData.append('TotalCount', totalCount);
+        formData.append('UserId', userId);
+        formData.append('ReturnDate', returnDate);
+        formData.append('TakeDate', takeDate);
 
         if (image) {
             formData.append('Image', image);
@@ -69,8 +70,8 @@ const BookRedact = () => {
             await updateBook(book.id, formData);
             navigate(`/books`);
         } catch (error) {
-            if(error.response && error.response.data) {
-                setErrors(error.response.data.errors);
+            if(error.response) {
+                setErrors(error.response.errors);
             } else {
                 console.error('There was an error updating the book!', error);
             }
@@ -108,14 +109,6 @@ const BookRedact = () => {
                         type="text"
                         value={genre}
                         onChange={(e) => setGenre(e.target.value)}
-                    />
-                </FormControl>
-                <FormControl isRequired>
-                    <FormLabel>Общее количество</FormLabel>
-                    <Input
-                        type="text"
-                        value={totalCount}
-                        onChange={(e) => setTotalCount(e.target.value)}
                     />
                 </FormControl>
                 <FormControl>

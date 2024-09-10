@@ -32,7 +32,7 @@ const BookCard = (props) => {
                     <Button onClick={()=> router(`/books/${props.id}`)} variant='solid' colorScheme='teal'>
                         Подробнее
                     </Button>
-                    {props.availableCount === 0
+                    {props.userId !== null
                         ? <Badge  ml={3} p={2} size='ml' variant='outline' colorScheme='gray' fontSize='0.8em' >Нет в наличии</Badge>
                         : <></>
                     }

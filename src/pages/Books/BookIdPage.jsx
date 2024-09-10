@@ -49,21 +49,22 @@ const BookIdPage = () => {
         } catch (e) {
             console.log(e);
         }
-        borrowDisclosure.onClose()
+        borrowDisclosure.onClose();
+        navigate('/books')
     }
 
     const {borrowBook} = BorrowBookService();
     const {getById, deleteBook} = BookService();
-    const {getByIdWithoutBooks} = AuthorService();
+    const {getByIdWithBooks} = AuthorService();
 
     const [fetchBookById, isLoading, error] = useFetching(async (id) => {
         const response = await getById(id);
-        setBook(response.data.data);
+        setBook(response.data);
     });
 
     const [fetchAuthor, isAuthorLoading, authorError] = useFetching(async (id) => {
-        const response = await getByIdWithoutBooks(id);
-        setAuthor(response.data.data);
+        const response = await getByIdWithBooks(id);
+        setAuthor(response.data);
     })
 
     const handleDeleteBook = async () => {
@@ -152,7 +153,7 @@ const BookIdPage = () => {
                             </Text>
                             <HStack>
                                 <Button colorScheme='teal' variant='ghost'><Link to='/Books'>К книгам</Link></Button>
-                                {book.availableCount === 0
+                                {book.userId !== null
                                     ? <Badge  ml={3} p={2} size='ml' variant='outline' colorScheme='gray' fontSize='0.8em' >Нет в наличии</Badge>
                                     : <Button onClick={borrowDisclosure.onOpen} colorScheme='green'>Взять книгу</Button>
                                 }
@@ -190,14 +191,14 @@ const BookIdPage = () => {
                                 ref={initialRef}
                                 value={returnDate}
                                 onChange={handleReturnDateChange}
-                                min={minDate.toISOString().split('T')[0]} // Изменено
-                                max={maxDate.toISOString().split('T')[0]} // Изменено
+                                min={minDate.toISOString().split('T')[0]} 
+                                max={maxDate.toISOString().split('T')[0]} 
                             />
                         </FormControl>
                     </ModalBody>
 
                     <ModalFooter>
-                        <Button colorScheme='blue' mr={3} onClick={borrowBookHandle}> {/* Изменено */}
+                        <Button colorScheme='blue' mr={3} onClick={borrowBookHandle}>
                             Подтвердить
                         </Button>
                         <Button onClick={borrowDisclosure.onClose}>Отмена</Button>

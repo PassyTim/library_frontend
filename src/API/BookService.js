@@ -38,25 +38,3 @@ export default function BookService() {
 
     return {getAllBooks,getById, deleteBook, updateBook, createBook}
 }
-
-
-// export default class BookService {
-//     static axiosPrivate = useAxiosPrivate();
-//
-//     static async getAll(limit = 10, page = 1) {
-//         return await BookService.axiosPrivate.get('https://localhost:7212/api/book', {
-//             params : {
-//                 pageSize: limit,
-//                 pageNumber : page
-//             }
-//         })
-//     }
-//
-//     static async getById(id) {
-//         return await BookService.axiosPrivate.get('https://localhost:7212/api/book/' + id)
-//     }
-//
-//     static async delete(id) {
-//         return await BookService.axiosPrivate.delete('https://localhost:7212/api/book/' + id)
-//     }
-// }
