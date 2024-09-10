@@ -11,16 +11,20 @@ export default function BorrowBookService() {
         };
 
         console.log(borrowBookRequest)
-        return await axiosPrivate.post('/api/borrowService/borrow', borrowBookRequest);
+        return await axiosPrivate.post('/api/takeBookService/take', borrowBookRequest);
     }
 
-    const returnBook = async (id) => {
-        return await axiosPrivate.delete(`/api/borrowService/return/${id}`)
+    const returnBook = async (userId, bookId) => {
+        const returnBookRequest ={
+            userId : userId,
+            bookId : bookId
+        }
+        return await axiosPrivate.delete(`/api/borrowService/return/`, returnBookRequest)
     }
 
-    const getAll = async (userId) => {
-        return await axiosPrivate.get('/api/borrowService/' + userId)
-    }
+    // const getAll = async (userId) => {
+    //     return await axiosPrivate.get('/api/borrowService/' + userId)
+    // }
 
-    return {returnBook, borrowBook, getAll};
+    return {returnBook, borrowBook};
 }

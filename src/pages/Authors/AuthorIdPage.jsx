@@ -28,7 +28,7 @@ const AuthorIdPage = () => {
 
     const [fetchAuthor, isAuthorLoading, authorError] = useFetching(async (id) => {
         const response = await getByIdWithBooks(id);
-        setAuthor(response.data.data);
+        setAuthor(response.data);
     })
 
     const handleDeleteAuthor = async () => {

@@ -39,8 +39,8 @@ const Registration = () => {
 
             console.log('Пользователь успешно зарегистрирован:');
         } catch (error) {
-            if(error.response && error.response.data) {
-                setResponseErrors(error.response.data.errors)};
+            if(error.response) {
+                setResponseErrors(error.response)};
             console.error('Ошибка:', error);
         }
     };

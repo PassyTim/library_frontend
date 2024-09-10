@@ -16,7 +16,7 @@ const Authors = () => {
 
     const [fetchAuthors,isAuthorsLoading, authorError] = useFetching(async () => {
         const response = await getAllAuthors();
-        setAuthors(response.data.data);
+        setAuthors(response.data);
     })
 
     useEffect(() => {
