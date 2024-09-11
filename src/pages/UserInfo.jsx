@@ -8,23 +8,24 @@ import {
     Divider,
     Flex, Alert, AlertIcon, AlertTitle, AlertDescription,
 } from "@chakra-ui/react";
-import { Link } from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import useAuth from "../hooks/useAuth";
-import BorrowBookService from "../API/BorrowBookService";
+import TakeBookService from "../API/TakeBookService";
 import {useFetching} from "../useFetching";
 import Loader from "../components/UI/loader/Loader";
 
 const UserInfo = () => {
     const [user, setUser] = useState({});
     const [borrowedBooks, setBorrowedBooks] = useState({});
+    const navigate = useNavigate();
 
     const {auth} = useAuth();
 
-    const {getAll} = BorrowBookService();
+    const {getAll} = TakeBookService();
 
     const [fetchBorrowedBooks,isLoading, error] = useFetching(async (userId) => {
         const response = await getAll(userId);
-        setBorrowedBooks(response.data.data);
+        setBorrowedBooks(response.data);
     })
 
     useEffect(() => {
@@ -41,6 +42,10 @@ const UserInfo = () => {
 
     if(isLoading) {
         return <Loader/>
+    }
+
+    if (error) {
+        navigate('/error');
     }
 
     if (!user) {
@@ -106,7 +111,7 @@ const UserInfo = () => {
 
                                 <VStack align="start">
                                     <Text fontSize="md">
-                                        <strong>ID книги:</strong> {borrowedBook.bookId}
+                                        <strong>Название:</strong> {borrowedBook.name}
                                     </Text>
                                     <Text fontSize="md">
                                         <strong>Дата
@@ -119,7 +124,7 @@ const UserInfo = () => {
                                 </VStack>
                                 <Flex justify="flex-end">
 
-                                    <Button as={Link} to={`/books/${borrowedBook.bookId}`} colorScheme="teal" size="sm"
+                                    <Button as={Link} to={`/books/${borrowedBook.id}`} colorScheme="teal" size="sm"
                                             mt="2">
                                         Подробнее о книге
                                     </Button>

@@ -1,9 +1,9 @@
 import useAxiosPrivate from "../hooks/useAxiosPrivate";
 
-export default function BorrowBookService() {
+export default function TakeBookService() {
     const axiosPrivate = useAxiosPrivate();
 
-    const borrowBook = async (userId, bookId, returnDate) => {
+    const takeBook = async (userId, bookId, returnDate) => {
         const borrowBookRequest = {
             userId : userId,
             bookId : bookId,
@@ -19,12 +19,12 @@ export default function BorrowBookService() {
             userId : userId,
             bookId : bookId
         }
-        return await axiosPrivate.delete(`/api/borrowService/return/`, returnBookRequest)
+        return await axiosPrivate.delete(`/api/takeBookService/return/`, returnBookRequest)
     }
 
-    // const getAll = async (userId) => {
-    //     return await axiosPrivate.get('/api/borrowService/' + userId)
-    // }
+    const getAll = async (userId) => {
+        return await axiosPrivate.get('/api/takeBookService/' + userId)
+    }
 
-    return {returnBook, borrowBook};
+    return {returnBook, takeBook, getAll};
 }

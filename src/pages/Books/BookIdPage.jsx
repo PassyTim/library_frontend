@@ -27,7 +27,7 @@ import DeleteAlert from "../../components/UI/deleteAlert/DeleteAlert";
 import BookService from "../../API/BookService";
 import AuthorService from "../../API/AuthorService";
 import useAuth from "../../hooks/useAuth";
-import BorrowBookService from "../../API/BorrowBookService";
+import TakeBookService from "../../API/TakeBookService";
 
 const BookIdPage = () => {
     const params = useParams();
@@ -45,7 +45,7 @@ const BookIdPage = () => {
 
     const borrowBookHandle = async () => {
         try{
-            const response = await borrowBook(auth.user.id, book.id, returnDate)
+            const response = await takeBook(auth.user.id, book.id, returnDate)
         } catch (e) {
             console.log(e);
         }
@@ -53,7 +53,7 @@ const BookIdPage = () => {
         navigate('/books')
     }
 
-    const {borrowBook} = BorrowBookService();
+    const {takeBook} = TakeBookService();
     const {getById, deleteBook} = BookService();
     const {getByIdWithBooks} = AuthorService();
 
