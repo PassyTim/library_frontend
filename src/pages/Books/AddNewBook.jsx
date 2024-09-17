@@ -39,9 +39,15 @@ const AddNewBook = () => {
             createBook(formData);
             navigate(`/books`);
         } catch (error) {
-            if(error.response) {
-                setErrors(error.response);
-                console.error('There was an error creating the book!', error);
+            if (error.response) {
+                if (error.response.data.Detail === "Isbn already exists") {
+                    setErrors({ Isbn: ["ISBN уже существует"] });
+                }
+                else if (error.response.data.errors) {
+                    setErrors(error.response.data.errors);
+                } else {
+                    console.error('Unexpected error creating the book!', error);
+                }
             } else {
                 console.error('There was an error creating the book!', error);
             }
@@ -67,16 +73,15 @@ const AddNewBook = () => {
             <VStack>
                 <Heading as="h2" size="lg" fontWeight="bold">Добавление книги</Heading>
                 <form onSubmit={handleSubmit}>
-                    {errors &&
-                        errors.map(error => (
-                            <Text color="red.500">{error}</Text>
-                        ))}
                     <FormControl isRequired>
                         <FormLabel >Название</FormLabel>
                         <Input
                             type="text"
                             onChange={(e) => setName(e.target.value)}
                         />
+                        {errors.Name && errors.Name.map((err, index) => (
+                            <Text color="red.500" key={index}>{err}</Text>
+                        ))}
                     </FormControl>
                     <FormControl isRequired>
                         <FormLabel>ISBN номер </FormLabel>
@@ -84,6 +89,9 @@ const AddNewBook = () => {
                             type="text"
                             onChange={(e) => setIsbn(e.target.value)}
                         />
+                        {errors.Isbn && errors.Isbn.map((err, index) => (
+                            <Text color="red.500" key={index}>{err}</Text>
+                        ))}
                     </FormControl>
                     <FormControl isRequired>
                         <FormLabel>Жанр</FormLabel>
@@ -91,12 +99,18 @@ const AddNewBook = () => {
                             type="text"
                             onChange={(e) => setGenre(e.target.value)}
                         />
+                        {errors.Genre && errors.Genre.map((err, index) => (
+                            <Text color="red.500" key={index}>{err}</Text>
+                        ))}
                     </FormControl>
                     <FormControl>
                         <FormLabel>Описание</FormLabel>
                         <Textarea
                             onChange={(e) => setDescription(e.target.value)}
                         />
+                        {errors.Description && errors.Description.map((err, index) => (
+                            <Text color="red.500" key={index}>{err}</Text>
+                        ))}
                     </FormControl>
                     <FormControl isRequired>
                         <FormLabel>Автор</FormLabel>
@@ -110,6 +124,9 @@ const AddNewBook = () => {
                                 </option>
                             ))}
                         </Select>
+                        {errors.AuthorId && errors.AuthorId.map((err, index) => (
+                            <Text color="red.500" key={index}>{err}</Text>
+                        ))}
                     </FormControl>
                     <FormControl>
                         <FormLabel>Фотография</FormLabel>
@@ -117,6 +134,9 @@ const AddNewBook = () => {
                             type="file"
                             onChange={(e) => setImage(e.target.files[0])}
                         />
+                        {errors.Image && errors.Image.map((err, index) => (
+                            <Text color="red.500" key={index}>{err}</Text>
+                        ))}
                     </FormControl>
                     <Button onClick={()=> navigate(`/books`)} colorScheme='teal'  mt='4' mr='4'>Назад</Button>
                     <Button  colorScheme='blue' type="submit" mt='4'>Добавить</Button>

@@ -43,8 +43,8 @@ const AuthorRedact = () => {
             await updateAuthor(params.id, author);
             navigate(`/authors`);
         } catch (error) {
-            if(error.response) {
-                setErrors(error.response);
+            if(error.response && error.response.data.errors) {
+                setErrors(error.response.data.errors);
             } else {
                 console.error('There was an error updating the author!', error);
             }
@@ -64,10 +64,6 @@ const AuthorRedact = () => {
                     Редактирование автора
                 </Heading>
                 <form onSubmit={handleSubmit}>
-                    {errors &&
-                        errors.map(error => (
-                            <Text color="red.500">{error}</Text>
-                        ))}
                     <FormControl isRequired>
                         <FormLabel>Имя</FormLabel>
                         <Input
@@ -76,6 +72,9 @@ const AuthorRedact = () => {
                             value={author.firstName}
                             onChange={handleChange}
                         />
+                        {errors.FirstName && errors.FirstName.map((err, index) => (
+                            <Text color="red.500" key={index}>{err}</Text>
+                        ))}
                     </FormControl>
                     <FormControl isRequired>
                         <FormLabel >Фамилия</FormLabel>
@@ -85,6 +84,9 @@ const AuthorRedact = () => {
                             value={author.lastName}
                             onChange={handleChange}
                         />
+                        {errors.LastName && errors.LastName.map((err, index) => (
+                            <Text color="red.500" key={index}>{err}</Text>
+                        ))}
                     </FormControl>
                     <FormControl isRequired>
                         <FormLabel>Страна</FormLabel>
@@ -94,6 +96,9 @@ const AuthorRedact = () => {
                             value={author.country}
                             onChange={handleChange}
                         />
+                        {errors.Country && errors.Country.map((err, index) => (
+                            <Text color="red.500" key={index}>{err}</Text>
+                        ))}
                     </FormControl>
                     <FormControl isRequired>
                         <FormLabel>Дата рождения</FormLabel>
