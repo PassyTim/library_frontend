@@ -12,6 +12,17 @@ export default function BookService() {
         })
     };
 
+    const getSearchBooks = async (limit = 10, page = 1, authorId, bookName) => {
+        return await axiosPrivate.get('/api/book/search', {
+            params : {
+                pageSize: limit,
+                pageNumber : page,
+                authorId: authorId,
+                bookName: bookName
+            }
+        })
+    }
+
     const getById = async (id) => {
         return await axiosPrivate.get('/api/book/' + id)
     }
@@ -36,5 +47,5 @@ export default function BookService() {
         });
     }
 
-    return {getAllBooks,getById, deleteBook, updateBook, createBook}
+    return {getAllBooks,getById, deleteBook, updateBook, createBook, getSearchBooks}
 }

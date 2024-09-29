@@ -1,0 +1,6 @@
+{
+  "apiUrls" : {
+    "apiBaseUrl" : "https://localhost:7212",
+    "apiDockerUrl" : "http://library.api:5000"
+  }
+}

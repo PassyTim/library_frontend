@@ -15,6 +15,7 @@ import {useNavigate} from "react-router-dom";
 const Registration = () => {
     const navigate = useNavigate();
     const [responseErrors, setResponseErrors] = useState([]);
+    const BASE_URL = fetchBaseUrl();
 
     const {
         handleSubmit,
@@ -25,14 +26,30 @@ const Registration = () => {
             role: 'User',
         }});
 
+    function fetchBaseUrl () {
+        if(process.env.NODE_ENV === 'production') {
+            return "http://localhost:5000"
+        }
+        else {
+            return "https://localhost:7212"
+        }
+    }
+
     const onSubmit = async (data) => {
         try {
             console.log(data);
             await axios
-            const response = await axios.post('https://localhost:7212/api/auth/register', data
+            const response = await axios.post(BASE_URL + '/api/auth/register', data, {
+                withCredentials : true,
+                headers : {
+                    "Access-Control-Allow-Headers" : "Content-Type",
+                    "Access-Control-Allow-Origin": "*",
+                    'Content-Type': 'application/json',
+                    "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PATCH"},
+                }
             );
             console.log(response);
-            if(response.isSuccess)
+            if(response.status === 204)
             {
                 navigate('/auth/login');
             }
@@ -40,7 +57,16 @@ const Registration = () => {
             console.log('Пользователь успешно зарегистрирован:');
         } catch (error) {
             if(error.response) {
-                setResponseErrors(error.response)};
+                const errorData = error.response.data;
+
+                const formattedErrors = [];
+
+                if (errorData.Detail) {
+                    formattedErrors.push(errorData.Detail);
+                }
+
+                setResponseErrors(formattedErrors);
+            }
             console.error('Ошибка:', error);
         }
     };
@@ -94,7 +120,7 @@ const Registration = () => {
                                 minLength: {
                                     value: 8,
                                     message: 'Пароль должен содержать не менее 8 символов',
-                                },
+                                }
                             })}
                         />
                         <FormErrorMessage>{errors.password && errors.password.message}</FormErrorMessage>

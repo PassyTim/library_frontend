@@ -9,11 +9,21 @@ const Login= () => {
     const navigate = useNavigate();
     const [responseErrors, setResponseErrors] = useState([]);
     const {setAuth} = useContext(AuthContext);
+    const BASE_URL = fetchBaseUrl();
 
     function getRole(token) {
         const arrayToken = token.split('.');
         const tokenPayload = JSON.parse(atob(arrayToken[1]));
         return tokenPayload.role;
+    }
+
+    function fetchBaseUrl () {
+        if(process.env.NODE_ENV === 'production') {
+            return "http://localhost:5000"
+        }
+        else {
+            return "https://localhost:7212"
+        }
     }
 
     const {
@@ -25,8 +35,13 @@ const Login= () => {
     const onSubmit = async (data) => {
         try {
             console.log(data);
-            const response = await axios.post('https://localhost:7212/api/auth/login', data, {
+            const response = await axios.post(BASE_URL + '/api/auth/login', data, {
                 withCredentials : true,
+                headers : {
+                    "Access-Control-Allow-Headers" : "Content-Type",
+                    "Access-Control-Allow-Origin": "*",
+                    'Content-Type': 'application/json',
+                    "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PATCH"},
             });
             console.log(response);
 
@@ -42,7 +57,16 @@ const Login= () => {
             console.log('Пользователь успешно вошел в систему:', response.data);
         } catch (error) {
             if(error?.response) {
-                setResponseErrors(error.response)};
+                const errorData = error.response.data;
+
+                const formattedErrors = [];
+
+                if (errorData.Detail) {
+                    formattedErrors.push(errorData.Detail);
+                }
+
+                setResponseErrors(formattedErrors);
+            }
             console.error('Ошибка:', error);
         }
     };
